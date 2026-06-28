@@ -18,7 +18,7 @@ POST {{host}}/api/auth/register
 Content-Type: application/json
 
 {
-  "fullName": "Alice Admin",
+  "fullName": "Admin",
   "email": "admin@demo.com",
   "password": "admin123",
   "role": "ADMIN"
@@ -31,7 +31,7 @@ POST {{host}}/api/auth/register
 Content-Type: application/json
 
 {
-  "fullName": "Bob Eleve",
+  "fullName": "Eleve",
   "email": "eleve@demo.com",
   "password": "eleve123",
   "role": "STUDENT"
@@ -44,7 +44,7 @@ POST {{host}}/api/auth/register
 Content-Type: application/json
 
 {
-  "fullName": "Carol Prof",
+  "fullName": "Prof",
   "email": "prof@demo.com",
   "password": "prof123",
   "role": "TEACHER"

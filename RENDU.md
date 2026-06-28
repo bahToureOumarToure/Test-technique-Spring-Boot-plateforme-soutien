@@ -90,31 +90,31 @@ Le schéma relationnel repose sur quatre entités clés structurées de manière
 ## 5. Endpoints REST développés
 
 ### Authentification (Accès public)
-* `POST /api/auth/register` — Inscription d'un nouvel utilisateur (génère un jeton JWT).
-* `POST /api/auth/login` — Authentification de l'utilisateur (renvoie le jeton JWT).
+* `POST /api/auth/register`:Inscription d'un nouvel utilisateur (génère un jeton JWT).
+* `POST /api/auth/login`:Authentification de l'utilisateur (renvoie le jeton JWT).
 
 ### Matières Scolaires
-* `GET /api/subjects` — Liste l'ensemble des matières (Accessible à tout utilisateur authentifié).
-* `POST /api/subjects` — Ajout d'une nouvelle matière (**ADMIN** uniquement).
-* `PUT /api/subjects/{id}` — Modification d'une matière (**ADMIN** uniquement).
-* `DELETE /api/subjects/{id}` — Suppression d'une matière (**ADMIN** uniquement).
+* `GET /api/subjects`:Liste l'ensemble des matières (Accessible à tout utilisateur authentifié).
+* `POST /api/subjects`:Ajout d'une nouvelle matière (**ADMIN** uniquement).
+* `PUT /api/subjects/{id}`:Modification d'une matière (**ADMIN** uniquement).
+* `DELETE /api/subjects/{id}`:Suppression d'une matière (**ADMIN** uniquement).
 
 ### Demandes de soutien scolaire
-* `POST /api/requests` — Soumission d'une nouvelle demande (**STUDENT** uniquement).
-* `GET /api/requests/available` — Visualisation des demandes en attente d'affectation (**TEACHER**, **ADMIN**).
-* `GET /api/requests/mine` — Consultation de son tableau de bord personnel (Retourne les demandes spécifiques à l'élève connecté ou à l'enseignant connecté).
-* `GET /api/requests/{id}` — Consultation des détails d'une demande (Réservé aux participants directs ou à l'**ADMIN**).
-* `POST /api/requests/{id}/assign` — Prise en charge d'une demande par un enseignant (**TEACHER** uniquement).
-* `PATCH /api/requests/{id}/complete` — Passage de la demande à l'état terminé (**STUDENT** créateur ou **ADMIN**).
-* `PATCH /api/requests/{id}/cancel` — Annulation d'une demande (**STUDENT** créateur ou **ADMIN**).
+* `POST /api/requests`:Soumission d'une nouvelle demande (**STUDENT** uniquement).
+* `GET /api/requests/available`:Visualisation des demandes en attente d'affectation (**TEACHER**, **ADMIN**).
+* `GET /api/requests/mine`:Consultation de son tableau de bord personnel (Retourne les demandes spécifiques à l'élève connecté ou à l'enseignant connecté).
+* `GET /api/requests/{id}`:Consultation des détails d'une demande (Réservé aux participants directs ou à l'**ADMIN**).
+* `POST /api/requests/{id}/assign`:Prise en charge d'une demande par un enseignant (**TEACHER** uniquement).
+* `PATCH /api/requests/{id}/complete`:Passage de la demande à l'état terminé (**STUDENT** créateur ou **ADMIN**).
+* `PATCH /api/requests/{id}/cancel`:Annulation d'une demande (**STUDENT** créateur ou **ADMIN**).
 
 ### Messagerie intégrée
-* `POST /api/requests/{id}/messages` — Envoi d'un message au sein d'une demande (Réservé à l'élève émetteur et à l'enseignant assigné).
-* `GET /api/requests/{id}/messages` — Extraction chronologique de l'historique des échanges (Participants et **ADMIN**).
+* `POST /api/requests/{id}/messages`:Envoi d'un message au sein d'une demande (Réservé à l'élève émetteur et à l'enseignant assigné).
+* `GET /api/requests/{id}/messages`:Extraction chronologique de l'historique des échanges (Participants et **ADMIN**).
 
 ### Administration des utilisateurs
-* `GET /api/users` — Liste l'ensemble des comptes de la plateforme (**ADMIN** uniquement).
-* `GET /api/users/{id}` — Consultation d'un profil utilisateur spécifique (**ADMIN** uniquement).
+* `GET /api/users`:Liste l'ensemble des comptes de la plateforme (**ADMIN** uniquement).
+* `GET /api/users/{id}`:Consultation d'un profil utilisateur spécifique (**ADMIN** uniquement).
 
 ---
 
