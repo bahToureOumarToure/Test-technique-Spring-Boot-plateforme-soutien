@@ -1,0 +1,21 @@
+# Configuration utilisée UNIQUEMENT pendant les tests (src/test).
+# On remplace PostgreSQL par H2, une base en mémoire qui se crée
+# au démarrage du test et disparaît à la fin. Aucun Docker requis.
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+app:
+  jwt:
+    secret: "Cle-Secrete-De-Test-Pour-Les-Tests-Unitaires-JWT-2026"
+    expiration-ms: 86400000

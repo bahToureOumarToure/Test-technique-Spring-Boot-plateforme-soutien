@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: plateforme-soutien
+
+  # ===== Connexion à PostgreSQL =====
+  # Ces valeurs correspondent au service défini dans docker-compose.yml
+  datasource:
+    url: jdbc:postgresql://localhost:5432/soutien_db
+    username: soutien
+    password: soutien
+    driver-class-name: org.postgresql.Driver
+
+  # ===== JPA / Hibernate =====
+  jpa:
+    hibernate:
+      # update = Hibernate crée/met à jour les tables automatiquement
+      # à partir de nos entités Java. Pratique pour un exercice.
+      ddl-auto: update
+    show-sql: true          # affiche les requêtes SQL dans la console
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+# ===== Configuration personnalisée pour JWT =====
+# On la lira dans notre code via @Value("${app.jwt.secret}")
+app:
+  jwt:
+    # Clé secrète utilisée pour signer les tokens (au moins 32 caractères pour HS256)
+    secret: "ChangeMoi-Cle-Secrete-Tres-Longue-Pour-La-Signature-JWT-2026"
+    # Durée de validité d'un token : 24h (en millisecondes)
+    expiration-ms: 86400000
+
+# ===== Documentation Swagger =====
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+server:
+  port: 8080

@@ -1,0 +1,17 @@
+# Lance une base PostgreSQL prête à l'emploi.
+# Commande :  docker compose up -d
+services:
+  postgres:
+    image: postgres:16
+    container_name: soutien-postgres
+    environment:
+      POSTGRES_DB: soutien_db
+      POSTGRES_USER: soutien
+      POSTGRES_PASSWORD: soutien
+    ports:
+      - "5432:5432"
+    volumes:
+      - soutien_pgdata:/var/lib/postgresql/data
+
+volumes:
+  soutien_pgdata:
