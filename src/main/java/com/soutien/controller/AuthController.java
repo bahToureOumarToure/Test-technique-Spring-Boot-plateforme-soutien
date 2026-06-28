@@ -24,7 +24,7 @@ public class AuthController {
     }
 
     /**
-     * POST /api/auth/register -> crée un compte et renvoie un token.
+     * POST /api/auth/register ,  crée un compte et renvoie un token.
      */
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
@@ -33,7 +33,7 @@ public class AuthController {
     }
 
     /**
-     * POST /api/auth/login -> vérifie les identifiants et renvoie un token.
+     * POST /api/auth/login , vérifie les identifiants et renvoie un token.
      */
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {

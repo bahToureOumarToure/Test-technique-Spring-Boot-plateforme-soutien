@@ -1,0 +1,156 @@
+### =====================================================================
+###  Scénario de test complet de l'API (cliquable dans IntelliJ / VS Code)
+###
+###  Comment l'utiliser :
+###   1. Lancer l'application (local ou Docker).
+###   2. Exécuter les requêtes DANS L'ORDRE en cliquant sur "Run" (▶).
+###   3. Les tokens et identifiants sont capturés automatiquement.
+###
+###  NB : les comptes utilisent des emails fixes. Pour REJOUER depuis zéro,
+###  réinitialisez la base :  docker compose down -v   (puis up)
+###  ou changez les emails ci-dessous.
+### =====================================================================
+
+@host = http://localhost:8080
+
+### 1. Inscription ADMIN (capture du token)
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Alice Admin",
+  "email": "admin@demo.com",
+  "password": "admin123",
+  "role": "ADMIN"
+}
+
+> {% client.global.set("adminToken", response.body.token); %}
+
+### 2. Inscription ÉLÈVE
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Bob Eleve",
+  "email": "eleve@demo.com",
+  "password": "eleve123",
+  "role": "STUDENT"
+}
+
+> {% client.global.set("studentToken", response.body.token); %}
+
+### 3. Inscription ENSEIGNANT
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "Carol Prof",
+  "email": "prof@demo.com",
+  "password": "prof123",
+  "role": "TEACHER"
+}
+
+> {% client.global.set("teacherToken", response.body.token); %}
+
+### 4. Connexion ADMIN (démonstration du login)
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@demo.com",
+  "password": "admin123"
+}
+
+### 5. ADMIN crée une matière (capture de l'id)
+POST {{host}}/api/subjects
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Mathématiques",
+  "description": "Algèbre et géométrie"
+}
+
+> {% client.global.set("subjectId", response.body.id); %}
+
+### 6. ÉLÈVE liste les matières
+GET {{host}}/api/subjects
+Authorization: Bearer {{studentToken}}
+
+### 7. ÉLÈVE crée une demande de soutien (capture de l'id)
+POST {{host}}/api/requests
+Authorization: Bearer {{studentToken}}
+Content-Type: application/json
+
+{
+  "subjectId": {{subjectId}},
+  "description": "Besoin d'aide sur les équations du 2nd degré"
+}
+
+> {% client.global.set("requestId", response.body.id); %}
+
+### 8. ENSEIGNANT consulte les demandes disponibles
+GET {{host}}/api/requests/available
+Authorization: Bearer {{teacherToken}}
+
+### 9. ENSEIGNANT s'affecte à la demande (-> IN_PROGRESS)
+POST {{host}}/api/requests/{{requestId}}/assign
+Authorization: Bearer {{teacherToken}}
+
+### 10. ÉLÈVE envoie un message
+POST {{host}}/api/requests/{{requestId}}/messages
+Authorization: Bearer {{studentToken}}
+Content-Type: application/json
+
+{
+  "content": "Bonjour, je bloque sur cet exercice"
+}
+
+### 11. ENSEIGNANT répond
+POST {{host}}/api/requests/{{requestId}}/messages
+Authorization: Bearer {{teacherToken}}
+Content-Type: application/json
+
+{
+  "content": "Bonjour Bob, envoie-moi un exemple précis"
+}
+
+### 12. Historique du fil de discussion
+GET {{host}}/api/requests/{{requestId}}/messages
+Authorization: Bearer {{studentToken}}
+
+### 13. ÉLÈVE termine sa demande (-> COMPLETED)
+PATCH {{host}}/api/requests/{{requestId}}/complete
+Authorization: Bearer {{studentToken}}
+
+### 14. ADMIN liste tous les utilisateurs
+GET {{host}}/api/users
+Authorization: Bearer {{adminToken}}
+
+### =====================================================================
+###  Cas d'erreur (sécurité)
+### =====================================================================
+
+### 15. ÉLÈVE tente de créer une matière -> 403 Forbidden
+POST {{host}}/api/subjects
+Authorization: Bearer {{studentToken}}
+Content-Type: application/json
+
+{
+  "name": "Tentative interdite",
+  "description": "x"
+}
+
+### 16. Accès sans token -> 401 Unauthorized
+GET {{host}}/api/requests/mine
+
+### 17. Données invalides -> 400 + détail des champs
+POST {{host}}/api/auth/register
+Content-Type: application/json
+
+{
+  "fullName": "X",
+  "email": "pas-un-email",
+  "password": "123",
+  "role": "STUDENT"
+}

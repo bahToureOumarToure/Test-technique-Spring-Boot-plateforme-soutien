@@ -1,6 +1,7 @@
 package com.soutien.config;
 
 import com.soutien.security.CustomUserDetailsService;
+import com.soutien.security.JwtAccessDeniedHandler;
 import com.soutien.security.JwtAuthEntryPoint;
 import com.soutien.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * Configuration centrale de la sécurité.
  *
  * @EnableMethodSecurity : active les annotations @PreAuthorize sur les
- * méthodes des controllers (ex: @PreAuthorize("hasRole('ADMIN')")).
+ * méthodes des controllers (ex: @PreAuthorize("hasRole('Role_x')")).
  */
 @Configuration
 @EnableMethodSecurity
@@ -30,13 +31,16 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
                           CustomUserDetailsService userDetailsService,
-                          JwtAuthEntryPoint jwtAuthEntryPoint) {
+                          JwtAuthEntryPoint jwtAuthEntryPoint,
+                          JwtAccessDeniedHandler jwtAccessDeniedHandler) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.userDetailsService = userDetailsService;
         this.jwtAuthEntryPoint = jwtAuthEntryPoint;
+        this.jwtAccessDeniedHandler = jwtAccessDeniedHandler;
     }
 
     /**
@@ -79,6 +83,7 @@ public class SecurityConfig {
         http
             // 1. On désactive CSRF : inutile pour une API REST stateless
             //    (pas de cookies de session, donc pas vulnérable au CSRF).
+                // dan  le cas contraire ! obliger
             .csrf(AbstractHttpConfigurer::disable)
 
             // 2. Pas de session : chaque requête s'authentifie via son token.
@@ -88,6 +93,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                     // Inscription et connexion : accessibles sans token.
                     .requestMatchers("/api/auth/**").permitAll()
+                    // (déclenchée par un 403) repasse en "anonyme" et
+                    // transforme le 403 en 401. (Voir filtre OncePerRequestFilter.)
+                    .requestMatchers("/error").permitAll()
                     // Documentation Swagger : publique (pratique pour l'évaluateur).
                     .requestMatchers(
                             "/swagger-ui/**",
@@ -97,8 +105,12 @@ public class SecurityConfig {
                     .anyRequest().authenticated()
             )
 
-            // 4. Réponse 401 propre si non authentifié.
-            .exceptionHandling(eh -> eh.authenticationEntryPoint(jwtAuthEntryPoint))
+            // 4. Réponses d'erreur propres :
+            //    - 401 si non authentifié (entry point)
+            //    - 403 si authentifié mais rôle insuffisant (access denied handler)
+            .exceptionHandling(eh -> eh
+                    .authenticationEntryPoint(jwtAuthEntryPoint)
+                    .accessDeniedHandler(jwtAccessDeniedHandler))
 
             // 5. On enregistre notre fournisseur d'authentification.
             .authenticationProvider(authenticationProvider())

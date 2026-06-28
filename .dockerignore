@@ -1,0 +1,9 @@
+# Évite d'envoyer des fichiers inutiles ou sensibles au contexte de build Docker.
+target/
+.git/
+.idea/
+*.iml
+.vscode/
+# IMPORTANT : ne jamais inclure les secrets dans l'image
+.env
+*.log
