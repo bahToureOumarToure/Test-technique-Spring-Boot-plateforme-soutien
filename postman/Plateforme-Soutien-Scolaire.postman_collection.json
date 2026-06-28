@@ -1,0 +1,418 @@
+{
+  "info": {
+    "name": "Plateforme de Soutien Scolaire, API",
+    "description": "Collection de test complete de l'API. Importer egalement l'environnement 'Plateforme Soutien Scolaire, Local' et le selectionner avant de lancer. Executer les requetes dans l'ordre des dossiers : les jetons (admin, eleve, enseignant) et les identifiants (matiere, demande) sont captures automatiquement dans les variables d'environnement.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Authentification",
+      "item": [
+        {
+          "name": "Inscription, Administrateur",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 201 Created', function () { pm.response.to.have.status(201); });",
+              "pm.environment.set('adminToken', pm.response.json().token);"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Admin\",\n  \"email\": \"admin@demo.com\",\n  \"password\": \"admin123\",\n  \"role\": \"ADMIN\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": [ "{{baseUrl}}" ], "path": [ "api", "auth", "register" ] }
+          }
+        },
+        {
+          "name": "Inscription, Eleve",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 201 Created', function () { pm.response.to.have.status(201); });",
+              "pm.environment.set('studentToken', pm.response.json().token);"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Eleve\",\n  \"email\": \"eleve@demo.com\",\n  \"password\": \"eleve123\",\n  \"role\": \"STUDENT\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": [ "{{baseUrl}}" ], "path": [ "api", "auth", "register" ] }
+          }
+        },
+        {
+          "name": "Inscription, Enseignant",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 201 Created', function () { pm.response.to.have.status(201); });",
+              "pm.environment.set('teacherToken', pm.response.json().token);"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Prof\",\n  \"email\": \"prof@demo.com\",\n  \"password\": \"prof123\",\n  \"role\": \"TEACHER\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": [ "{{baseUrl}}" ], "path": [ "api", "auth", "register" ] }
+          }
+        },
+        {
+          "name": "Connexion, Administrateur",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 200 OK', function () { pm.response.to.have.status(200); });",
+              "pm.environment.set('adminToken', pm.response.json().token);"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@demo.com\",\n  \"password\": \"admin123\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": [ "{{baseUrl}}" ], "path": [ "api", "auth", "login" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Matieres",
+      "item": [
+        {
+          "name": "Creer une matiere (Admin)",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 201 Created', function () { pm.response.to.have.status(201); });",
+              "pm.environment.set('subjectId', pm.response.json().id);"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Reinforcement Learning\",\n  \"description\": \"Env : CartPole\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/subjects", "host": [ "{{baseUrl}}" ], "path": [ "api", "subjects" ] }
+          }
+        },
+        {
+          "name": "Lister les matieres",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 200 OK', function () { pm.response.to.have.status(200); });"
+            ] } }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{studentToken}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/subjects", "host": [ "{{baseUrl}}" ], "path": [ "api", "subjects" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Demandes de soutien",
+      "item": [
+        {
+          "name": "Creer une demande (Eleve)",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 201 Created', function () { pm.response.to.have.status(201); });",
+              "pm.test('Statut metier CREATED', function () { pm.expect(pm.response.json().status).to.eql('CREATED'); });",
+              "pm.environment.set('requestId', pm.response.json().id);"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{studentToken}}" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"subjectId\": {{subjectId}},\n  \"description\": \"Besoin d'aide  comment Maintenir la tige droite, éviter la descente\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/requests", "host": [ "{{baseUrl}}" ], "path": [ "api", "requests" ] }
+          }
+        },
+        {
+          "name": "Demandes disponibles (Enseignant)",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 200 OK', function () { pm.response.to.have.status(200); });"
+            ] } }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{teacherToken}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/requests/available", "host": [ "{{baseUrl}}" ], "path": [ "api", "requests", "available" ] }
+          }
+        },
+        {
+          "name": "Mes demandes (Eleve)",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 200 OK', function () { pm.response.to.have.status(200); });"
+            ] } }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{studentToken}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/requests/mine", "host": [ "{{baseUrl}}" ], "path": [ "api", "requests", "mine" ] }
+          }
+        },
+        {
+          "name": "Detail d'une demande",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 200 OK', function () { pm.response.to.have.status(200); });"
+            ] } }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{studentToken}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/requests/{{requestId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "requests", "{{requestId}}" ] }
+          }
+        },
+        {
+          "name": "S'affecter a une demande (Enseignant)",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 200 OK', function () { pm.response.to.have.status(200); });",
+              "pm.test('Statut metier IN_PROGRESS', function () { pm.expect(pm.response.json().status).to.eql('IN_PROGRESS'); });"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{teacherToken}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/requests/{{requestId}}/assign", "host": [ "{{baseUrl}}" ], "path": [ "api", "requests", "{{requestId}}", "assign" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Messagerie",
+      "item": [
+        {
+          "name": "Envoyer un message (Eleve)",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 201 Created', function () { pm.response.to.have.status(201); });"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{studentToken}}" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"content\": \"Bonjour, je bloque sur cet exercice.\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/requests/{{requestId}}/messages", "host": [ "{{baseUrl}}" ], "path": [ "api", "requests", "{{requestId}}", "messages" ] }
+          }
+        },
+        {
+          "name": "Envoyer un message (Enseignant)",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 201 Created', function () { pm.response.to.have.status(201); });"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{teacherToken}}" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"content\": \"Bonjour Eleve, envoyez-moi un exemple precis.\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/requests/{{requestId}}/messages", "host": [ "{{baseUrl}}" ], "path": [ "api", "requests", "{{requestId}}", "messages" ] }
+          }
+        },
+        {
+          "name": "Historique des messages",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 200 OK', function () { pm.response.to.have.status(200); });",
+              "pm.test('Au moins 2 messages', function () { pm.expect(pm.response.json().length).to.be.at.least(2); });"
+            ] } }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{studentToken}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/requests/{{requestId}}/messages", "host": [ "{{baseUrl}}" ], "path": [ "api", "requests", "{{requestId}}", "messages" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Cloture de la demande",
+      "item": [
+        {
+          "name": "Terminer la demande (Eleve)",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 200 OK', function () { pm.response.to.have.status(200); });",
+              "pm.test('Statut metier COMPLETED', function () { pm.expect(pm.response.json().status).to.eql('COMPLETED'); });"
+            ] } }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Authorization", "value": "Bearer {{studentToken}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/requests/{{requestId}}/complete", "host": [ "{{baseUrl}}" ], "path": [ "api", "requests", "{{requestId}}", "complete" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Utilisateurs",
+      "item": [
+        {
+          "name": "Lister les utilisateurs (Admin)",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 200 OK', function () { pm.response.to.have.status(200); });",
+              "var users = pm.response.json();",
+              "if (users.length > 0) { pm.environment.set('userId', users[0].id); }"
+            ] } }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/users", "host": [ "{{baseUrl}}" ], "path": [ "api", "users" ] }
+          }
+        },
+        {
+          "name": "Detail d'un utilisateur (Admin)",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 200 OK', function () { pm.response.to.have.status(200); });"
+            ] } }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/users/{{userId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "users", "{{userId}}" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Operations complementaires",
+      "item": [
+        {
+          "name": "Creer une matiere temporaire (Admin)",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 201 Created', function () { pm.response.to.have.status(201); });",
+              "pm.environment.set('tempSubjectId', pm.response.json().id);"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Matiere temporaire\",\n  \"description\": \"A supprimer\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/subjects", "host": [ "{{baseUrl}}" ], "path": [ "api", "subjects" ] }
+          }
+        },
+        {
+          "name": "Modifier la matiere temporaire (Admin)",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 200 OK', function () { pm.response.to.have.status(200); });"
+            ] } }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Matiere temporaire modifiee\",\n  \"description\": \"Description mise a jour\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/subjects/{{tempSubjectId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "subjects", "{{tempSubjectId}}" ] }
+          }
+        },
+        {
+          "name": "Supprimer la matiere temporaire (Admin)",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 204 No Content', function () { pm.response.to.have.status(204); });"
+            ] } }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/subjects/{{tempSubjectId}}", "host": [ "{{baseUrl}}" ], "path": [ "api", "subjects", "{{tempSubjectId}}" ] }
+          }
+        },
+        {
+          "name": "Creer une demande a annuler (Eleve)",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 201 Created', function () { pm.response.to.have.status(201); });",
+              "pm.environment.set('cancelRequestId', pm.response.json().id);"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{studentToken}}" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"subjectId\": {{subjectId}},\n  \"description\": \"Demande qui sera annulee\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/requests", "host": [ "{{baseUrl}}" ], "path": [ "api", "requests" ] }
+          }
+        },
+        {
+          "name": "Annuler la demande (Eleve)",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 200 OK', function () { pm.response.to.have.status(200); });",
+              "pm.test('Statut metier CANCELLED', function () { pm.expect(pm.response.json().status).to.eql('CANCELLED'); });"
+            ] } }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "Authorization", "value": "Bearer {{studentToken}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/requests/{{cancelRequestId}}/cancel", "host": [ "{{baseUrl}}" ], "path": [ "api", "requests", "{{cancelRequestId}}", "cancel" ] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Securite, cas d'erreur",
+      "item": [
+        {
+          "name": "403, Eleve tente de creer une matiere",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 403 Forbidden', function () { pm.response.to.have.status(403); });"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{studentToken}}" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Tentative interdite\",\n  \"description\": \"x\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/subjects", "host": [ "{{baseUrl}}" ], "path": [ "api", "subjects" ] }
+          }
+        },
+        {
+          "name": "401, Acces sans jeton",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 401 Unauthorized', function () { pm.response.to.have.status(401); });"
+            ] } }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/requests/mine", "host": [ "{{baseUrl}}" ], "path": [ "api", "requests", "mine" ] }
+          }
+        },
+        {
+          "name": "404, Demande inexistante",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 404 Not Found', function () { pm.response.to.have.status(404); });"
+            ] } }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/requests/999999", "host": [ "{{baseUrl}}" ], "path": [ "api", "requests", "999999" ] }
+          }
+        },
+        {
+          "name": "400, Donnees invalides (inscription)",
+          "event": [
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Statut 400 Bad Request', function () { pm.response.to.have.status(400); });"
+            ] } }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"X\",\n  \"email\": \"pas-un-email\",\n  \"password\": \"123\",\n  \"role\": \"STUDENT\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": [ "{{baseUrl}}" ], "path": [ "api", "auth", "register" ] }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" }
+  ]
+}

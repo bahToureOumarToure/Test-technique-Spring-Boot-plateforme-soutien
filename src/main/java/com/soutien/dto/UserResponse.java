@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 /**
  * DTO de sortie pour un utilisateur.
- * IMPORTANT : on n'expose JAMAIS le champ 'password' (même haché).
+ * IMPORTANT : on n'expose JAMAIS le champ 'password' (même si  haché) ce  champ est tres sensible;;;;.
  */
 public record UserResponse(
         Long id,

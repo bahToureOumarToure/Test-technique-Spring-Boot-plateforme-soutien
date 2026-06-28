@@ -3,11 +3,14 @@ spring:
     name: plateforme-soutien
 
   # ===== Connexion à PostgreSQL =====
-  # Ces valeurs correspondent au service défini dans docker-compose.yml
+  # Les vraies valeurs viennent des variables d'environnement (fichier .env,
+  # injecté par docker-compose). La valeur après ":" n'est qu'un DÉFAUT pratique
+  # pour lancer en local sans configurer quoi que ce soit. Aucun secret réel
+  # n'est donc écrit en dur ici.
   datasource:
-    url: jdbc:postgresql://localhost:5432/soutien_db
-    username: soutien
-    password: soutien
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/soutien_db}
+    username: ${SPRING_DATASOURCE_USERNAME:soutien}
+    password: ${SPRING_DATASOURCE_PASSWORD:soutien}
     driver-class-name: org.postgresql.Driver
 
   # ===== JPA / Hibernate =====
@@ -23,13 +26,14 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 # ===== Configuration personnalisée pour JWT =====
-# On la lira dans notre code via @Value("${app.jwt.secret}")
+# Le secret réel vient de la variable d'environnement APP_JWT_SECRET (.env).
+# La valeur par défaut ci-dessous ne sert QUE pour le dev local.
 app:
   jwt:
     # Clé secrète utilisée pour signer les tokens (au moins 32 caractères pour HS256)
-    secret: "ChangeMoi-Cle-Secrete-Tres-Longue-Pour-La-Signature-JWT-2026"
+    secret: ${APP_JWT_SECRET:DevSecretLocalUniquementChangeMoiEnProd0123456789}
     # Durée de validité d'un token : 24h (en millisecondes)
-    expiration-ms: 86400000
+    expiration-ms: ${APP_JWT_EXPIRATION_MS:86400000}
 
 # ===== Documentation Swagger =====
 springdoc:

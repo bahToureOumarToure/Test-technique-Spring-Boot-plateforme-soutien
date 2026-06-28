@@ -9,6 +9,15 @@ target/
 .project
 .classpath
 
+# Secrets — ne JAMAIS commiter le .env réel (seul .env.example l'est)
+.env
+
+# Fiche de révision personnelle (préparation entretien, non destinée au rendu)
+FICHE-REVISION-PERSO.md
+
+# Fichier d'aide pour le message de commit (non destiné au rendu)
+COMMIT_MESSAGE.txt
+
 # Logs
 *.log
 

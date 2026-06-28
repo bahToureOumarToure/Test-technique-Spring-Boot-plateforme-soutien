@@ -1,17 +1,44 @@
-# Lance une base PostgreSQL prête à l'emploi.
-# Commande :  docker compose up -d
+# Lance TOUTE l'application (base + API) en une commande :
+#   docker compose up --build
+#
+# Les valeurs sensibles (mots de passe, secret JWT) sont lues depuis le
+# fichier .env (non commité). docker-compose le charge automatiquement.
 services:
+
   postgres:
     image: postgres:16
     container_name: soutien-postgres
     environment:
-      POSTGRES_DB: soutien_db
-      POSTGRES_USER: soutien
-      POSTGRES_PASSWORD: soutien
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
       - soutien_pgdata:/var/lib/postgresql/data
+    # Healthcheck : Docker considère la base "saine" quand elle répond.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: soutien-app
+    # L'app ne démarre QUE lorsque la base est saine.
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Dans le réseau Docker, la base s'appelle "postgres" (pas localhost).
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      APP_JWT_SECRET: ${APP_JWT_SECRET}
+      APP_JWT_EXPIRATION_MS: ${APP_JWT_EXPIRATION_MS}
+    ports:
+      - "8080:8080"
 
 volumes:
   soutien_pgdata:
